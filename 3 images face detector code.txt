@@ -1,0 +1,47 @@
+# 📌 Step 1: Install Required Libraries
+!pip install deepface
+!pip install -q opencv-python
+
+# 📌 Step 2: Import Libraries
+import os
+from google.colab import files
+from deepface import DeepFace
+import shutil
+
+# 📌 Step 3: Create 'Pictures' Folder (if not exists)
+if not os.path.exists("Pictures"):
+    os.mkdir("Pictures")
+
+# 📌 Step 4: Upload Three Images
+print("📤 Please upload **THREE** face images (JPG/PNG)")
+uploaded = files.upload()
+
+# 📌 Step 5: Move Uploaded Images to 'Pictures' Folder
+uploaded_image_paths = []
+for file_name in uploaded.keys():
+    src = file_name
+    dst = os.path.join("Pictures", file_name)
+    shutil.move(src, dst)
+    uploaded_image_paths.append(dst)
+
+# 📌 Step 6: Check if Three Images Were Uploaded
+if len(uploaded_image_paths) != 3:
+    print("⚠️ Please upload exactly THREE images.")
+else:
+    print("\n🔍 Verifying Faces...")
+
+    # 📌 Step 7: Compare All Three Combinations
+    result_1_2 = DeepFace.verify(uploaded_image_paths[0], uploaded_image_paths[1])
+    result_1_3 = DeepFace.verify(uploaded_image_paths[0], uploaded_image_paths[2])
+    result_2_3 = DeepFace.verify(uploaded_image_paths[1], uploaded_image_paths[2])
+
+    # 📌 Step 8: Show Results
+    print("\n📸 Result: Image 1 vs Image 2 →", "✅ Same" if result_1_2["verified"] else "❌ Different")
+    print("📸 Result: Image 1 vs Image 3 →", "✅ Same" if result_1_3["verified"] else "❌ Different")
+    print("📸 Result: Image 2 vs Image 3 →", "✅ Same" if result_2_3["verified"] else "❌ Different")
+
+    # 📌 Step 9: Final Conclusion
+    if result_1_2["verified"] and result_1_3["verified"] and result_2_3["verified"]:
+        print("\n✅ All three images are of the SAME person.")
+    else:
+        print("\n❌ All three images are NOT of the same person.")
